@@ -1,0 +1,9 @@
+openssl
+
+genrsa -out A.key
+rsa -in A.key -des3 -out B.key
+req -x509 -new -nodes -key B.key -days 7 -out A.pem
+
+genrsa -out C.key
+req -new -key C.key -out C.csr
+x509 -req -in C.csr -CA A.pem -CAkey A.key -CAcreateserial -out C.crt -days 500

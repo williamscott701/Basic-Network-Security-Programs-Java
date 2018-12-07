@@ -1,0 +1,32 @@
+SELF-SIGNED CERTIFICATE FOR A LOCAL MACHINE (CA)
+Create root key
+
+openssl genrsa -out rootCA.key 2048
+
+Keep this private key very private. This is the basis of all trust for your certificates, and if someone gets a hold of it, they can generate certificates that your browser will accept. You can also create a key that is password protected by adding -des3:
+
+openssl rsa -in rootCA.key -des3 -out enc-rootCA.key
+
+Self-sign the certificate
+
+openssl req -x509 -new -nodes -key enc-rootCA.key -days 1024 -out rootCA.pem
+
+Convert certificate from .crt/.csr/.pem to pkcs#12
+
+SYNTAX ::= openssl pkcs12 -export -out server.p12(pfx) -inkey server.key -in server.crt -certfile CACert.crt
+openssl pkcs12 -export -out sumit.p12 -inkey sumit.key -in server.crt (csr or pem)
+
+GENERATING SIGNED-CERTIFICATE FOR A PARTICULAR DEVICES
+Generate device key
+
+openssl genrsa -out device.key 2048
+
+Generate the certificate signing request:
+
+openssl req -new -key device.key -out device.csr
+
+Use the IP address of the device while filling the details
+Common Name (eg, YOUR name) []: 10.0.0.1
+Sign the CSR, which requires the CA root key
+
+openssl x509 -req -in device.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out device.crt -days 500
